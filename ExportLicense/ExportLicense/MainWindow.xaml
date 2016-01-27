@@ -5,8 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExportLicense"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        Title="Erik's Tools: Export NAV License from SQL Database" Height="280" Width="525">
     <Grid>
-        
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Width="200">SQL Server</Label>
+                <TextBox Width="300" Name="SQL" Text="{Binding Path=SQLServer,Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Width="200">SQL Database</Label>
+                <TextBox Width="300" Name="Data" Text="{Binding Path=Database,Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Width="200">SQL UserName</Label>
+                <TextBox Width="300" Name="userName" Text="{Binding Path=UserName,Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Width="200">SQL Password</Label>
+                <TextBox Width="300" Name="PasswordTxt" Text="{Binding Path=Password,Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Width="200">SQL Authentication Type</Label>
+                <ComboBox Name="combo" Width="300" SelectedIndex="{Binding Path=ConnectionType,Mode=TwoWay}">
+                    <ComboBoxItem>Windows</ComboBoxItem>
+                    <ComboBoxItem>Database</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Button Width="300" Margin="200,0,0,0" Height="25" Click="Button_Click">Export License</Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Margin="200,0,0,0"><Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.hougaard.com">More Info at: Hougaard.com - Applied Hacking</Hyperlink></TextBlock>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>
