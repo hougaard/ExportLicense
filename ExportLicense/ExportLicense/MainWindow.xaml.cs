@@ -61,7 +61,7 @@ namespace ExportLicense
                     builder.IntegratedSecurity = true;
                 SqlConnection Con = new SqlConnection(builder.ConnectionString);
                 Con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT License from "+table, Con);
+                SqlCommand cmd = new SqlCommand("SELECT license from "+table, Con);
                 SqlDataReader data = cmd.ExecuteReader();
                 while (data.Read())
                 {
