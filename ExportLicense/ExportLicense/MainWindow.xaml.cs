@@ -30,7 +30,7 @@ namespace ExportLicense
             DataContext = this;
             combo.SelectedIndex = 0;
         }
-        
+
         // Model
         public string SQLServer { get; set; }
         public string UserName { get; set; }
@@ -38,30 +38,13 @@ namespace ExportLicense
         public string Database { get; set; }
         public SQLType ConnectionType { get; set; }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ButtonExportLicense_Click(object sender, RoutedEventArgs e)
         {
             try
-            {
-                string table;
-                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-                builder.DataSource = SQLServer;
-                if (string.IsNullOrEmpty(Database))
-                {
-                    builder.InitialCatalog = "master";
-                    table = "[$ndo$srvproperty]";
-                }
-                else
-                {
-                    builder.UserID = UserName;
-                    builder.Password = Password;
-                    builder.InitialCatalog = Database;
-                    table = "[$ndo$dbproperty]";
-                }
-                if (ConnectionType == SQLType.Windows)
-                    builder.IntegratedSecurity = true;
-                SqlConnection Con = new SqlConnection(builder.ConnectionString);
-                Con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT license from "+table, Con);
+            {                
+                string table = "";
+                SqlConnection con = InitializeConnection(ref table);
+                SqlCommand cmd = new SqlCommand("SELECT license from " + table, con);
                 SqlDataReader data = cmd.ExecuteReader();
                 while (data.Read())
                 {
@@ -75,14 +58,67 @@ namespace ExportLicense
                         ms.Position = 0;
                         ms.CopyTo(fs);
                         fs.Close();
-                        MessageBox.Show("Succes, exported as " + sfd.FileName);
+                        MessageBox.Show("Success, exported as " + sfd.FileName);
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
             }
+        }
+
+        private void ButtonImportLicense_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string table = "";
+                SqlConnection con = InitializeConnection(ref table);
+
+                OpenFileDialog openFileDlg = new OpenFileDialog();
+                openFileDlg.Filter = "License|*.flf";
+                if (openFileDlg.ShowDialog() == true)
+                {
+                    byte[] bytes = System.IO.File.ReadAllBytes(openFileDlg.FileName);
+                    SqlCommand cmd = new SqlCommand("UPDATE " + table + " SET license = @File", con);
+                    var param = cmd.Parameters.Add("@File", System.Data.SqlDbType.Image, bytes.Length);
+                    param.Value = bytes;
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Success, imported " + openFileDlg.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+        private SqlConnection InitializeConnection(ref string table)
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+            builder.DataSource = SQLServer;
+            if (string.IsNullOrEmpty(Database))
+            {
+                builder.InitialCatalog = "master";
+                table = "[$ndo$srvproperty]";
+            }
+            else
+            {
+                builder.InitialCatalog = Database;
+                table = "[$ndo$dbproperty]";
+            }
+            if (ConnectionType == SQLType.Windows)
+            {
+                builder.IntegratedSecurity = true;
+            }
+            else
+            {
+                builder.UserID = UserName;
+                builder.Password = Password;
+            }
+            SqlConnection con = new SqlConnection(builder.ConnectionString);
+            con.Open();
+            return con;
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
